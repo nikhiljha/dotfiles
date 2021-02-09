@@ -1,0 +1,23 @@
+# basic information
+HISTFILE=~/.histfile
+HISTSIZE=512
+SAVEHIST=512
+unsetopt beep
+bindkey -e
+zstyle :compinstall filename '/home/njha/.zshrc'
+autoload -Uz compinit
+compinit
+
+# automatic colors
+(cat ~/.cache/wal/sequences &)
+
+# python binaries
+# /home/njha/.local/bin
+
+# resf aliases
+alias ls='exa'
+alias vi='vim'
+
+# were meant to fly
+eval "$(starship init zsh)"
+

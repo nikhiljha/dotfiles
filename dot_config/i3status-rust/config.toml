@@ -1,0 +1,16 @@
+theme = "native"
+icons = "awesome5"
+
+[[block]]
+block = "battery"
+driver = "upower"
+device = "DisplayDevice"
+
+[[block]]
+block = "sound"
+
+[[block]]
+block = "time"
+interval = 60
+format = "%a %d/%m %I:%M%p"
+
