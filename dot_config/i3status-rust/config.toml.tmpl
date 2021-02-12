@@ -1,10 +1,12 @@
 theme = "native"
 icons = "awesome5"
 
+{{ if (eq .chezmoi.hostname "kokuhou") }}
 [[block]]
 block = "battery"
 driver = "upower"
 device = "DisplayDevice"
+{{ end }}
 
 [[block]]
 block = "sound"
