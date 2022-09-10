@@ -20,8 +20,27 @@ return require('packer').startup(function()
   -- git wrapper
   use 'tpope/vim-fugitive'
 
-  -- code completion
-  use 'dense-analysis/ale'
+  -- language servers
+  use { -- automatically download lang servers
+    'williamboman/mason.nvim',
+    config = function ()
+      require('mason').setup()
+    end
+  }
+  use { -- configure lang servers
+    'neovim/nvim-lspconfig',
+    requires = {
+      'williamboman/mason.nvim',
+      'williamboman/mason-lspconfig.nvim',
+    },
+    config = function()
+      require("mason-lspconfig").setup_handlers {
+        function(server_name) -- default handler
+          require('lspconfig')[server_name].setup {}
+        end,
+      }
+    end,
+  }
 
   -- terraform
   use 'hashivim/vim-terraform'
