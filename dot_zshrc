@@ -1,0 +1,151 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+#############################
+# ZSH Configuration Helpers #
+#############################
+# Source a file, iff it exists.
+function try_source() {
+    if [[ -r $1 ]]; then
+        source $1
+    fi
+}
+# Add to path, if the directory exists.
+function try_path() {
+    if [[ -d $1 ]]; then
+        export PATH="$1:${PATH}"
+    fi
+}
+# Add to aliases, if the neccesary binary exists.
+function try_alias() {
+    local cmd=$(echo $2 | cut -d " " -f 1)
+    if type $cmd > /dev/null; then
+        alias $1=$2
+    fi
+}
+# Run and eval a command, if it exists.
+function try_eval() {
+    local cmd=$(echo $1 | cut -d " " -f 1)
+    if type $cmd > /dev/null; then
+        eval $(eval $1)
+    fi
+}
+
+###############
+# ZSH Plugins #
+###############
+# plugin manager: zcomet
+if [[ ! -f ${HOME}/.config/zcomet/bin/zcomet.zsh ]]; then
+  command git clone https://github.com/nikhiljha/zcomet.git ${HOME}/.config/zcomet/bin
+fi
+try_source ${HOME}/.config/zcomet/bin/zcomet.zsh
+zstyle ':zcomet:*' home-dir ${HOME}/.config/zcomet
+
+# prompt: p10k
+zcomet load romkatv/powerlevel10k
+
+# env: standard vars
+export EDITOR="nvim"
+
+#########################
+# OS / Machine Specific #
+#########################
+# MacOS: Package Manager (Homebrew)
+try_eval "/opt/homebrew/bin/brew shellenv"
+try_path "/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/java/bin"
+
+###################
+# Developer Tools #
+###################
+# Kubernetes
+try_path "$HOME/.krew/bin"
+try_eval "kubectl completion zsh"
+try_alias k kubectl
+compdef __start_kubectl k
+# Rust (via Cargo)
+try_source "$HOME/.cargo/env"
+# OCaml (via Opam)
+[[ ! -r /Users/njha/.opam/opam-init/init.zsh ]] || source /Users/njha/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
+# Conda (via miniforge)
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/opt/homebrew/Caskroom/miniforge/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh" ]; then
+        . "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh"
+    else
+        export PATH="/opt/homebrew/Caskroom/miniforge/base/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+#######################
+# Aliases / Shortcuts #
+#######################
+# vim
+try_alias vi nvim
+try_alias vim nvim
+
+# ls
+try_alias ls exa
+
+# git
+try_alias g git
+try_alias ga "git add . --all"
+try_alias gc "git commit -m"
+try_alias gu git pull
+function gcl() {
+	local repo=$(echo $1 | cut -d ":" -f 2 | cut -d "." -f 1)
+	cd ~/Development
+	mkdir $(echo $repo | cut -d "/" -f 1)
+	cd $(echo $repo | cut -d "/" -f 1)
+	git clone $1
+	cd $(echo $repo | cut -d "/" -f 2)
+	git config user.email "nikhiljha@users.noreply.github.com"
+}
+function gsetp() {
+	git config user.email "nikhiljha@users.noreply.github.com"
+}
+
+# fzf
+if type rg &> /dev/null; then
+    export FZF_DEFAULT_COMMAND='rg --files'
+fi
+try_alias f fzf
+try_alias fv "f | xargs nvim"
+
+# zoxide (fuzzy cd)
+try_eval "zoxide init zsh"
+try_alias cd z
+
+# ugrep
+try_alias ugreppdf 'ugrep --filter="pdf:pdftotext % -,odt,doc,docx,rtf,xls,xlsx,ppt,pptx:soffice --headless --cat %"'
+try_alias rgafm 'rga --files-with-matches'
+
+# terraform
+try_alias tf terraform
+
+# ripgrep
+try_alias rgi "rg --no-ignore"
+
+#############
+# Postamble #
+#############
+# Prompt Setup
+try_source "$HOME/.p10k.zsh"
+# Completions
+zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
+zstyle :compinstall filename '/Users/njha/.zshrc'
+if type brew &>/dev/null
+then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+fi
+zcomet compinit
+
