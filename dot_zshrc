@@ -24,14 +24,14 @@ function try_path() {
 function try_alias() {
     local cmd=$(echo $2 | cut -d " " -f 1)
     if type $cmd > /dev/null; then
-        alias $1=$2
+        alias $1="$2"
     fi
 }
 # Run and eval a command, if it exists.
 function try_eval() {
     local cmd=$(echo $1 | cut -d " " -f 1)
     if type $cmd > /dev/null; then
-        eval $(eval $1)
+        eval "$(eval $1)"
     fi
 }
 
@@ -123,7 +123,6 @@ try_alias fv "f | xargs nvim"
 
 # zoxide (fuzzy cd)
 try_eval "zoxide init zsh"
-try_alias cd z
 
 # ugrep
 try_alias ugreppdf 'ugrep --filter="pdf:pdftotext % -,odt,doc,docx,rtf,xls,xlsx,ppt,pptx:soffice --headless --cat %"'

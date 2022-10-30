@@ -7,6 +7,6 @@ o.listchars = {
     trail = '·',
     extends = '›',
     precedes = '‹',
-    eol = '¬'
 }
 
+-- eol = '¬'
