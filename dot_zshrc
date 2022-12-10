@@ -57,6 +57,8 @@ export EDITOR="nvim"
 # MacOS: Package Manager (Homebrew)
 try_eval "/opt/homebrew/bin/brew shellenv"
 try_path "/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/java/bin"
+export HOMEBREW_INSTALL_FROM_API=1
+try_path "${HOME}/Library/Application Support/Coursier/bin"
 
 ###################
 # Developer Tools #
@@ -65,6 +67,7 @@ try_path "/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/java/bin"
 try_path "$HOME/.krew/bin"
 try_eval "kubectl completion zsh"
 try_alias k kubectl
+try_alias kr "k rook-ceph -n rook ceph"
 compdef __start_kubectl k
 # Rust (via Cargo)
 try_source "$HOME/.cargo/env"
@@ -112,6 +115,10 @@ function gcl() {
 }
 function gsetp() {
 	git config user.email "nikhiljha@users.noreply.github.com"
+}
+function gfixlast() {
+	# In case I forget to gsetp...
+	GIT_COMMITER_NAME='Nikhil Jha' GIT_COMMITTER_EMAIL='nikhiljha@users.noreply.github.com' git commit --amend --reset-author --no-edit
 }
 
 # fzf

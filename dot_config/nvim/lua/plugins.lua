@@ -1,5 +1,3 @@
--- This file can be loaded by calling `lua require('plugins')` from your init.vim
-
 -- Only required if you have packer configured as `opt`
 local fn = vim.fn
 local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
@@ -45,6 +43,7 @@ return require('packer').startup(function(use)
           'hrsh7th/cmp-buffer',
           'hrsh7th/cmp-path',
           'hrsh7th/cmp-cmdline',
+          'hrsh7th/vim-vsnip',
         },
         config = function()
           local cmp = require('cmp')
@@ -108,6 +107,21 @@ return require('packer').startup(function(use)
 
     config = function()
       local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
+      do
+        local config = vim.tbl_deep_extend('force',
+          require('metals').bare_config(),
+          { capabilities = capabilities }
+        )
+        local augrp = vim.api.nvim_create_augroup('cfg-lsp-metals', { clear = true })
+        vim.api.nvim_create_autocmd('FileType', {
+          pattern = { 'scala', 'sbt' },
+          callback = function()
+            vim.opt_local.shortmess:remove('F')
+            require('metals').initialize_or_attach(config)
+          end,
+          group = augrp,
+        })
+      end
       require("mason-lspconfig").setup_handlers {
         function(server_name) -- default handler
           require('lspconfig')[server_name].setup {
@@ -128,21 +142,86 @@ return require('packer').startup(function(use)
   }
 
   -- sidebar
-  use 'sidebar-nvim/sidebar.nvim'
+  use {
+    'nvim-tree/nvim-tree.lua',
+    requires = {
+      'nvim-tree/nvim-web-devicons', -- optional, for file icons
+    },
+    tag = 'nightly', -- optional, updated every week. (see issue #1193)
+    config = function()
+      require("nvim-tree").setup()
+    end
+  }
 
   -- colors
   use { 'folke/tokyonight.nvim',
     config = function()
-      vim.cmd[[colorscheme tokyonight]]
+      vim.cmd [[colorscheme tokyonight]]
     end
   }
 
   -- fix cursor hold
   use {
-      'antoinemadec/FixCursorHold.nvim',
-      config = function()
-          vim.g.cursorhold_updatetime = 500
-      end,
+    'antoinemadec/FixCursorHold.nvim',
+    config = function()
+      vim.g.cursorhold_updatetime = 500
+      vim.api.nvim_create_autocmd({ 'CursorHold' }, {
+        group = vim.api.nvim_create_augroup('lsphold', {}),
+        callback = function()
+          vim.diagnostic.open_float({ focus = false })
+        end
+      })
+    end,
+  }
+
+  -- telescope wants this
+  use {
+    'nvim-treesitter/nvim-treesitter',
+    run = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
+    config = function()
+      require 'nvim-treesitter.configs'.setup {
+        -- Install parsers synchronously (only applied to `ensure_installed`)
+        sync_install = false,
+
+        -- Automatically install missing parsers when entering buffer
+        auto_install = true,
+
+        highlight = {
+          -- `false` will disable the whole extension
+          enable = true,
+
+          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
+          -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
+          -- Using this option may slow down your editor, and you may see some duplicate highlights.
+          -- Instead of true it can also be a list of languages
+          additional_vim_regex_highlighting = false,
+        },
+      }
+    end
+  }
+
+  -- LaTeX
+  use 'lervag/vimtex'
+
+  -- null-ls
+  use {
+    'jose-elias-alvarez/null-ls.nvim',
+    requires = { { 'nvim-lua/plenary.nvim' } },
+    config = function()
+      require("null-ls").setup({
+        sources = {
+          -- require("null-ls").builtins.diagnostics.vale,
+          require("null-ls").builtins.formatting.black,
+          require("null-ls").builtins.formatting.isort,
+        },
+      })
+    end,
+  }
+
+  -- scala does its own thing for some reason
+  use {
+    'scalameta/nvim-metals',
+    requires = { "nvim-lua/plenary.nvim" }
   }
 
   if packer_bootstrap then
