@@ -63,11 +63,13 @@ try_path "${HOME}/Library/Application Support/Coursier/bin"
 ###################
 # Developer Tools #
 ###################
+# Random Binaries
+try_path "$HOME/bin"
 # Kubernetes
 try_path "$HOME/.krew/bin"
 try_eval "kubectl completion zsh"
 try_alias k kubectl
-try_alias kr "k rook-ceph -n rook ceph"
+try_alias kr "k rook-ceph -n rook"
 compdef __start_kubectl k
 # Rust (via Cargo)
 try_source "$HOME/.cargo/env"
@@ -140,6 +142,9 @@ try_alias tf terraform
 
 # ripgrep
 try_alias rgi "rg --no-ignore"
+
+# bat
+try_alias bly "bat -l yaml"
 
 #############
 # Postamble #
