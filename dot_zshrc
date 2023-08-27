@@ -160,3 +160,5 @@ then
 fi
 zcomet compinit
 
+alias mods=~/go/bin/mods
+

@@ -1,47 +1,52 @@
--- Only required if you have packer configured as `opt`
-local fn = vim.fn
-local install_path = fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim'
-if fn.empty(fn.glob(install_path)) > 0 then
-  packer_bootstrap = fn.system({ 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim',
-    install_path })
+-- bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
 end
-vim.cmd [[packadd packer.nvim]]
+vim.opt.rtp:prepend(lazypath)
 
-return require('packer').startup(function(use)
+return require('lazy').setup({
   -- package manager
-  use 'wbthomason/packer.nvim'
+  'folke/lazy.nvim',
 
   -- sensible defaults
-  use 'tpope/vim-sensible'
-  use 'tpope/vim-repeat'
-  use 'tpope/vim-surround'
+  'tpope/vim-sensible',
+  'tpope/vim-repeat',
+  'tpope/vim-surround',
 
   -- quotes as a textobj
-  use 'preservim/vim-textobj-quote'
-
-  -- git wrapper
-  use 'tpope/vim-fugitive'
+  'preservim/vim-textobj-quote',
+-- git wrapper
+  'tpope/vim-fugitive',
 
   -- language servers
-  use { -- automatically download lang servers
+  { -- automatically download lang servers
     'williamboman/mason.nvim',
     config = function()
       require('mason').setup()
     end
-  }
-  use { -- configure lang servers
+  },
+
+  { -- configure lang servers
     'neovim/nvim-lspconfig',
-    requires = {
+    dependencies = {
       -- automatic language server installation
       { 'williamboman/mason-lspconfig.nvim',
-        requires = {
+        dependencies = {
           -- packer won't install dependencies of this for some reason
           'williamboman/mason.nvim',
         },
       },
       -- autocomplete
       { 'hrsh7th/nvim-cmp',
-        requires = {
+        dependencies = {
           'hrsh7th/cmp-nvim-lsp',
           'hrsh7th/cmp-buffer',
           'hrsh7th/cmp-path',
@@ -134,54 +139,47 @@ return require('packer').startup(function(use)
         end,
       }
     end,
-  }
+  },
 
   -- terraform
-  use 'hashivim/vim-terraform'
+  'hashivim/vim-terraform',
 
   -- telescope
-  use {
+  {
     'nvim-telescope/telescope.nvim',
-    requires = { { 'nvim-lua/plenary.nvim' } }
-  }
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
 
   -- sidebar
-  use {
+  {
     'nvim-tree/nvim-tree.lua',
-    requires = {
+    dependencies = {
       'nvim-tree/nvim-web-devicons', -- optional, for file icons
     },
-    tag = 'nightly', -- optional, updated every week. (see issue #1193)
+    version = 'nightly', -- optional, updated every week. (see issue #1193)
     config = function()
       require("nvim-tree").setup()
     end
-  }
+  },
 
   -- colors
-  use { 'folke/tokyonight.nvim',
-    config = function()
-      vim.cmd [[colorscheme tokyonight]]
-    end
-  }
-
-  -- fix cursor hold
-  use {
-    'antoinemadec/FixCursorHold.nvim',
-    config = function()
-      vim.g.cursorhold_updatetime = 500
-      vim.api.nvim_create_autocmd({ 'CursorHold' }, {
-        group = vim.api.nvim_create_augroup('lsphold', {}),
-        callback = function()
-          vim.diagnostic.open_float({ focus = false })
-        end
+  { 'catppuccin/nvim',
+    name = 'catppuccin',
+    config = function ()
+      require("catppuccin").setup({
+        flavour = "mocha", -- latte, frappe, macchiato, mocha
+        transparent_background = true, -- disables setting the background color.
+        color_overrides = {},
       })
-    end,
-  }
+
+      vim.cmd.colorscheme "catppuccin"
+    end
+  },
 
   -- telescope wants this
-  use {
+  {
     'nvim-treesitter/nvim-treesitter',
-    run = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
+    build = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
     config = function()
       require 'nvim-treesitter.configs'.setup {
         -- Install parsers synchronously (only applied to `ensure_installed`)
@@ -192,7 +190,7 @@ return require('packer').startup(function(use)
 
         highlight = {
           -- `false` will disable the whole extension
-          enable = false,
+          enable = true,
 
           -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
           -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
@@ -202,15 +200,15 @@ return require('packer').startup(function(use)
         },
       }
     end
-  }
+  },
 
   -- LaTeX
-  use 'lervag/vimtex'
+  'lervag/vimtex',
 
   -- null-ls
-  use {
+  {
     'jose-elias-alvarez/null-ls.nvim',
-    requires = { { 'nvim-lua/plenary.nvim' } },
+    dependencies = { { 'nvim-lua/plenary.nvim' } },
     config = function()
       require("null-ls").setup({
         sources = {
@@ -220,17 +218,13 @@ return require('packer').startup(function(use)
         },
       })
     end,
-  }
+  },
 
   -- scala does its own thing for some reason
-  use {
+  {
     'scalameta/nvim-metals',
-    requires = { "nvim-lua/plenary.nvim" }
-  }
-
-  if packer_bootstrap then
-    require('packer').sync()
-  end
-end)
+    dependencies = { "nvim-lua/plenary.nvim" }
+  },
+})
 
 -- vim: et ts=2 sw=0
