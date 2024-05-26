@@ -1,0 +1,16 @@
+[user]
+	name = Nikhil Jha
+	email = oss@nikhiljha.com
+[hub]
+	protocol = ssh
+[core]
+	excludesfile = /Users/njha/.gitignore
+[init]
+	defaultBranch = main
+[diff]
+	algorithm = patience
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true

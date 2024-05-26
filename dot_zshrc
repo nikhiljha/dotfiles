@@ -35,6 +35,7 @@ function try_eval() {
     fi
 }
 
+
 ###############
 # ZSH Plugins #
 ###############
@@ -59,12 +60,15 @@ try_eval "/opt/homebrew/bin/brew shellenv"
 try_path "/opt/homebrew/opt/llvm/bin:/opt/homebrew/opt/java/bin"
 export HOMEBREW_INSTALL_FROM_API=1
 try_path "${HOME}/Library/Application Support/Coursier/bin"
+try_path "/opt/homebrew/opt/riscv-openocd/bin"
 
 ###################
 # Developer Tools #
 ###################
 # Random Binaries
 try_path "$HOME/bin"
+# Google Cloud
+try_path "/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin"
 # Kubernetes
 try_path "$HOME/.krew/bin"
 try_eval "kubectl completion zsh"
@@ -91,6 +95,13 @@ fi
 unset __conda_setup
 # <<< conda initialize <<<
 
+###########
+# History #
+###########
+HISTSIZE=999999999
+SAVEHIST=$HISTSIZE
+try_eval "atuin init zsh --disable-up-arrow"
+
 #######################
 # Aliases / Shortcuts #
 #######################
@@ -99,28 +110,55 @@ try_alias vi nvim
 try_alias vim nvim
 
 # ls
-try_alias ls exa
+try_alias ls eza
 
 # git
 try_alias g git
 try_alias ga "git add . --all"
 try_alias gc "git commit -m"
 try_alias gu git pull
+function gsetp() {
+    git config user.email "nikhiljha@users.noreply.github.com"
+}
 function gcl() {
-	local repo=$(echo $1 | cut -d ":" -f 2 | cut -d "." -f 1)
-	cd ~/Development
-	mkdir $(echo $repo | cut -d "/" -f 1)
-	cd $(echo $repo | cut -d "/" -f 1)
-	git clone $1
-	cd $(echo $repo | cut -d "/" -f 2)
-	git config user.email "nikhiljha@users.noreply.github.com"
+    local git_url="$1"
+
+    # Check if it's a valid Git URL...
+    if ! [[ "$git_url" =~ ^([^@]+@|[^:]+://)([^:/]+)(:|/)(.+)(.git)?$ ]]; then
+        echo "I don't know how to parse this git URL, sorry!"
+        return 1
+    fi
+
+    local protocol="${match[1]}"
+    local host="${match[2]}"
+    local separator="${match[3]}"
+    local url_path="${match[4]}"
+
+    # Trim off .git from the repo name if it exists
+    if [[ $url_path == *.git ]]; then
+        url_path=${url_path%.git}
+    fi
+    local clone_path="$HOME/Development/$host/$url_path"
+
+    echo "Got it! Cloning into $clone_path..."
+    git clone $git_url $clone_path
+    if ! [[ $? == 0 ]]; then
+        echo "Uhhh... just kidding. I couldn't clone it for some reason lol. See above."
+        return 1
+    fi
+
+    cd $clone_path
+    if [[ "$host" == "github.com" ]]; then
+        echo "Detected GitHub... setting your user.email appropriately..."
+        git config user.email "nikhiljha@users.noreply.github.com"
+    fi
 }
 function gsetp() {
-	git config user.email "nikhiljha@users.noreply.github.com"
+    git config user.email "nikhiljha@users.noreply.github.com"
 }
 function gfixlast() {
-	# In case I forget to gsetp...
-	GIT_COMMITER_NAME='Nikhil Jha' GIT_COMMITTER_EMAIL='nikhiljha@users.noreply.github.com' git commit --amend --reset-author --no-edit
+    # In case I forget to gsetp...
+    GIT_COMMITER_NAME='Nikhil Jha' GIT_COMMITTER_EMAIL='nikhiljha@users.noreply.github.com' git commit --amend --reset-author --no-edit
 }
 
 # fzf
@@ -145,6 +183,9 @@ try_alias rgi "rg --no-ignore"
 
 # bat
 try_alias bly "bat -l yaml"
+
+# rye
+try_source "$HOME/.rye/env"
 
 #############
 # Postamble #
