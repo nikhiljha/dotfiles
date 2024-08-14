@@ -187,6 +187,12 @@ try_alias bly "bat -l yaml"
 # rye
 try_source "$HOME/.rye/env"
 
+# direnv
+try_eval "direnv hook zsh"
+
+# git branchless
+try_alias git 'git-branchless wrap --'
+
 #############
 # Postamble #
 #############
