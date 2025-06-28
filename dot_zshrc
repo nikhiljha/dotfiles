@@ -75,25 +75,8 @@ try_eval "kubectl completion zsh"
 try_alias k kubectl
 try_alias kr "k rook-ceph -n rook"
 compdef __start_kubectl k
-# Rust (via Cargo)
-try_source "$HOME/.cargo/env"
 # OCaml (via Opam)
 [[ ! -r /Users/njha/.opam/opam-init/init.zsh ]] || source /Users/njha/.opam/opam-init/init.zsh  > /dev/null 2> /dev/null
-# Conda (via miniforge)
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/opt/homebrew/Caskroom/miniforge/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh" ]; then
-        . "/opt/homebrew/Caskroom/miniforge/base/etc/profile.d/conda.sh"
-    else
-        export PATH="/opt/homebrew/Caskroom/miniforge/base/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
 
 ###########
 # History #
@@ -180,6 +163,22 @@ try_alias tf terraform
 
 # ripgrep
 try_alias rgi "rg --no-ignore"
+rgr() {
+    if [[ $# -lt 2 ]]; then
+        echo "Usage: rgr <pattern> <replacement> [rg_options...]"
+        echo "Example: rgr 'blue' 'red'"
+        echo "Example: rgr '\\d+' 'NUMBER' -i"
+        return 1
+    fi
+    
+    local pattern="$1"
+    local replacement="$2"
+    shift 2
+    
+    rg --files-with-matches "$pattern" "$@" | while read -r file; do
+        rg --passthru "$pattern" -r "$replacement" "$@" "$file" | sponge "$file"
+    done
+}
 
 # bat
 try_alias bly "bat -l yaml"
@@ -209,3 +208,47 @@ zcomet compinit
 
 alias mods=~/go/bin/mods
 
+
+# Created by `pipx` on 2024-12-22 23:23:28, then manually edited by njha
+export PATH="$PATH:$HOME/.local/bin"
+# try_source "$HOME/Development/yosys/oss-cad-suite/environment"
+export GLASGOW_TOOLCHAIN="system,builtin"
+
+export PATH="/Users/njha/Development/flutter/flutter/bin:$PATH"
+
+
+# Added by Windsurf
+export PATH="/Users/njha/.codeium/windsurf/bin:$PATH"
+
+
+# Rust (via Cargo)
+try_source "$HOME/.cargo/env"
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/Users/njha/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/Users/njha/miniforge3/etc/profile.d/conda.sh" ]; then
+        . "/Users/njha/miniforge3/etc/profile.d/conda.sh"
+    else
+        export PATH="/Users/njha/miniforge3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
+
+
+# >>> mamba initialize >>>
+# !! Contents within this block are managed by 'mamba shell init' !!
+export MAMBA_EXE='/Users/njha/miniforge3/bin/mamba';
+export MAMBA_ROOT_PREFIX='/Users/njha/miniforge3';
+__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__mamba_setup"
+else
+    alias mamba="$MAMBA_EXE"  # Fallback on help from mamba activate
+fi
+unset __mamba_setup
+# <<< mamba initialize <<<
