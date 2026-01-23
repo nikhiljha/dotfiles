@@ -131,12 +131,14 @@ return require('lazy').setup({
           group = augrp,
         })
       end
-      require("mason-lspconfig").setup_handlers {
-        function(server_name) -- default handler
-          require('lspconfig')[server_name].setup {
-            capabilities = capabilities
-          }
-        end,
+      require("mason-lspconfig").setup {
+        handlers = {
+          function(server_name) -- default handler
+            require('lspconfig')[server_name].setup {
+              capabilities = capabilities
+            }
+          end,
+        },
       }
     end,
   },
@@ -156,7 +158,7 @@ return require('lazy').setup({
     dependencies = {
       -- 'nvim-tree/nvim-web-devicons', -- optional, for file icons
     },
-    version = 'nightly', -- optional, updated every week. (see issue #1193)
+
     config = function()
       require("nvim-tree").setup()
     end
@@ -179,27 +181,17 @@ return require('lazy').setup({
   -- telescope wants this
   {
     'nvim-treesitter/nvim-treesitter',
-    build = function() require('nvim-treesitter.install').update({ with_sync = true }) end,
+    build = ':TSUpdate',
     config = function()
-      require 'nvim-treesitter.configs'.setup {
-        -- Install parsers synchronously (only applied to `ensure_installed`)
+      require('nvim-treesitter').setup {
         sync_install = false,
-
-        -- Automatically install missing parsers when entering buffer
         auto_install = true,
-
         highlight = {
-          -- `false` will disable the whole extension
           enable = true,
-
-          -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-          -- Set this to `true` if you depend on 'syntax' being enabled (like for indentation).
-          -- Using this option may slow down your editor, and you may see some duplicate highlights.
-          -- Instead of true it can also be a list of languages
           additional_vim_regex_highlighting = false,
         },
       }
-    end
+    end,
   },
 
   -- LaTeX
