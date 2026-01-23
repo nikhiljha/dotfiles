@@ -47,10 +47,13 @@ try_source ${HOME}/.config/zcomet/bin/zcomet.zsh
 zstyle ':zcomet:*' home-dir ${HOME}/.config/zcomet
 
 # prompt: p10k
+try_source /opt/homebrew/share/zsh/site-functions/async
 zcomet load romkatv/powerlevel10k
 
 # env: standard vars
 export EDITOR="nvim"
+bindkey "^[[1;3C" forward-word   # Option+Right
+bindkey "^[[1;3D" backward-word  # Option+Left
 
 #########################
 # OS / Machine Specific #
