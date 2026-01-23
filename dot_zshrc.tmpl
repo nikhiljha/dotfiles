@@ -101,7 +101,7 @@ try_alias ga "git add . --all"
 try_alias gc "git commit -m"
 try_alias gu git pull
 function gsetp() {
-    git config user.email "nikhiljha@users.noreply.github.com"
+    git config user.email "{{ .email | default "nikhiljha@users.noreply.github.com" }}"
 }
 function gcl() {
     local git_url="$1"
@@ -133,15 +133,15 @@ function gcl() {
     cd $clone_path
     if [[ "$host" == "github.com" ]]; then
         echo "Detected GitHub... setting your user.email appropriately..."
-        git config user.email "nikhiljha@users.noreply.github.com"
+        git config user.email "{{ .email | default "nikhiljha@users.noreply.github.com" }}"
     fi
 }
 function gsetp() {
-    git config user.email "nikhiljha@users.noreply.github.com"
+    git config user.email "{{ .email | default "nikhiljha@users.noreply.github.com" }}"
 }
 function gfixlast() {
     # In case I forget to gsetp...
-    GIT_COMMITER_NAME='Nikhil Jha' GIT_COMMITTER_EMAIL='nikhiljha@users.noreply.github.com' git commit --amend --reset-author --no-edit
+    GIT_COMMITER_NAME='Nikhil Jha' GIT_COMMITTER_EMAIL='{{ .email | default "nikhiljha@users.noreply.github.com" }}' git commit --amend --reset-author --no-edit
 }
 
 # fzf
