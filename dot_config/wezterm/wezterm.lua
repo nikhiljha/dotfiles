@@ -9,11 +9,54 @@ config.set_environment_variables = {
   PATH = '/opt/homebrew/bin:' .. os.getenv('PATH')
 }
 
-if appearance.is_dark() then
-  config.color_scheme = 'Catppuccin Macchiato (Gogh)'
-else
-  config.color_scheme = 'Catppuccin Macchiato (Gogh)'
-end
+-- Berkeley Mono color scheme, extracted from the TX-02 specimen card
+config.colors = {
+  foreground = '#e5e6e7',
+  background = '#000000',
+
+  cursor_fg = '#000000',
+  cursor_bg = '#e2a203',
+
+  selection_fg = '#000000',
+  selection_bg = '#e2a203',
+
+  ansi = {
+    '#272525', -- black
+    '#f66d6a', -- red
+    '#86ae41', -- green
+    '#cd9200', -- yellow
+    '#6a9bff', -- blue
+    '#9d89ff', -- purple
+    '#52b48e', -- cyan
+    '#babcbe', -- white
+  },
+  brights = {
+    '#6d6e70', -- bright black
+    '#ff9687', -- bright red
+    '#60d46c', -- bright green
+    '#ceb900', -- bright yellow
+    '#36c7ff', -- bright blue
+    '#ff8bc7', -- bright magenta
+    '#2cd69d', -- bright cyan
+    '#e5e6e7', -- bright white
+  },
+
+  tab_bar = {
+    background = '#000000',
+    active_tab = {
+      bg_color = '#e2a203',
+      fg_color = '#000000',
+    },
+    inactive_tab = {
+      bg_color = '#272525',
+      fg_color = '#babcbe',
+    },
+    inactive_tab_hover = {
+      bg_color = '#6d6e70',
+      fg_color = '#e5e6e7',
+    },
+  },
+}
 
 -- Slightly transparent and blurred background
 config.window_background_opacity = 0.93

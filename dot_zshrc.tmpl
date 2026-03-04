@@ -47,7 +47,7 @@ try_source ${HOME}/.config/zcomet/bin/zcomet.zsh
 zstyle ':zcomet:*' home-dir ${HOME}/.config/zcomet
 
 # prompt: p10k
-zcomet load mafredri/zsh-async
+try_source /opt/homebrew/share/zsh/site-functions/async
 zcomet load romkatv/powerlevel10k
 
 # env: standard vars
@@ -86,7 +86,7 @@ compdef __start_kubectl k
 ###########
 HISTSIZE=999999999
 SAVEHIST=$HISTSIZE
-try_eval "atuin init zsh --disable-up-arrow"
+
 
 #######################
 # Aliases / Shortcuts #
@@ -220,8 +220,8 @@ export GLASGOW_TOOLCHAIN="system,builtin"
 export PATH="/Users/njha/Development/flutter/flutter/bin:$PATH"
 
 
-# Added by Windsurf
-export PATH="/Users/njha/.codeium/windsurf/bin:$PATH"
+# Windsurf
+try_path "$HOME/.codeium/windsurf/bin"
 
 
 # Rust (via Cargo)
@@ -255,3 +255,22 @@ else
 fi
 unset __mamba_setup
 # <<< mamba initialize <<<
+
+# NVM
+export NVM_DIR="$HOME/.local/nvm"
+try_source "/opt/homebrew/opt/nvm/nvm.sh"
+try_source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+
+# jj
+try_alias j jj
+alias jjra='jj git fetch && jj rebase -s "roots(mutable())" -d main@origin'
+
+# pnpm
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+# Machine-local overrides (not managed by chezmoi)
+try_source ~/.zshrc.local
