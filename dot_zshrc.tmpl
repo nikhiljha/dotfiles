@@ -256,10 +256,19 @@ fi
 unset __mamba_setup
 # <<< mamba initialize <<<
 
-# NVM
+# NVM (lazy-loaded)
 export NVM_DIR="$HOME/.local/nvm"
-try_source "/opt/homebrew/opt/nvm/nvm.sh"
-try_source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+if [[ -s "/opt/homebrew/opt/nvm/nvm.sh" ]]; then
+  _nvm_lazy_load() {
+    unset -f nvm node npm npx corepack 2>/dev/null
+    source "/opt/homebrew/opt/nvm/nvm.sh"
+    [[ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ]] && \
+      source "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+  }
+  for cmd in nvm node npm npx corepack; do
+    eval "${cmd}() { _nvm_lazy_load; ${cmd} \"\$@\" }"
+  done
+fi
 
 # jj
 try_alias j jj
