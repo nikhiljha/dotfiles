@@ -20,19 +20,13 @@ function try_path() {
         export PATH="$1:${PATH}"
     fi
 }
-# Add to aliases, if the neccesary binary exists.
+# Add to aliases, if the necessary binary exists.
 function try_alias() {
-    local cmd=$(echo $2 | cut -d " " -f 1)
-    if type $cmd > /dev/null; then
-        alias $1="$2"
-    fi
+    (( $+commands[${2%% *}] )) && alias $1="$2"
 }
 # Run and eval a command, if it exists.
 function try_eval() {
-    local cmd=$(echo $1 | cut -d " " -f 1)
-    if type $cmd > /dev/null; then
-        eval "$(eval $1)"
-    fi
+    (( $+commands[${1%% *}] )) && eval "$(eval $1)"
 }
 
 
@@ -74,7 +68,14 @@ try_path "$HOME/bin"
 try_path "/opt/homebrew/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/bin"
 # Kubernetes
 try_path "$HOME/.krew/bin"
-try_eval "kubectl completion zsh"
+# kubectl completions (cached)
+if (( $+commands[kubectl] )); then
+  local _kubectl_cache="${XDG_CACHE_HOME:-$HOME/.cache}/kubectl-completion.zsh"
+  if [[ ! -f "$_kubectl_cache" || "$commands[kubectl]" -nt "$_kubectl_cache" ]]; then
+    kubectl completion zsh > "$_kubectl_cache"
+  fi
+  source "$_kubectl_cache"
+fi
 try_alias k kubectl
 try_alias kr "k rook-ceph -n rook"
 compdef __start_kubectl k
@@ -203,10 +204,9 @@ try_source "$HOME/.p10k.zsh"
 # Completions
 zstyle ':completion:*' completer _expand _complete _ignored _correct _approximate
 zstyle :compinstall filename '/Users/njha/.zshrc'
-if type brew &>/dev/null
-then
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-fi
+{{ if eq .chezmoi.os "darwin" -}}
+FPATH="/opt/homebrew/share/zsh/site-functions:${FPATH}"
+{{ end -}}
 zcomet compinit
 
 alias mods=~/go/bin/mods
