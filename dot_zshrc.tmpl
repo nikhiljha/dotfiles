@@ -22,11 +22,17 @@ function try_path() {
 }
 # Add to aliases, if the necessary binary exists.
 function try_alias() {
-    (( $+commands[${2%% *}] )) && alias $1="$2"
+    local cmd=${2%% *}
+    (( $+commands[$cmd] + $+aliases[$cmd] )) && alias $1="$2"
 }
 # Run and eval a command, if it exists.
 function try_eval() {
-    (( $+commands[${1%% *}] )) && eval "$(eval $1)"
+    local cmd=${1%% *}
+    if [[ $cmd == /* ]]; then
+        [[ -x $cmd ]] && eval "$(eval $1)"
+    else
+        (( $+commands[$cmd] )) && eval "$(eval $1)"
+    fi
 }
 
 
