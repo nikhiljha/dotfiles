@@ -150,20 +150,6 @@ return require('lazy').setup({
     },
   },
 
-  -- colors
-  { 'catppuccin/nvim',
-    name = 'catppuccin',
-    config = function ()
-      require("catppuccin").setup({
-        flavour = "macchiato", -- latte, frappe, macchiato, mocha
-        transparent_background = true, -- disables setting the background color.
-        color_overrides = {},
-      })
-
-      vim.cmd.colorscheme "catppuccin"
-    end
-  },
-
   -- treesitter (parser installation only; highlighting is built-in as of nvim 0.12)
   {
     'nvim-treesitter/nvim-treesitter',
