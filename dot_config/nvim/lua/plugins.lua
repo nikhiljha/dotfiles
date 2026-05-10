@@ -175,6 +175,17 @@ return require('lazy').setup({
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
+    config = function()
+      vim.api.nvim_create_autocmd('FileType', {
+        callback = function()
+          local ts = require('nvim-treesitter')
+          local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+          if lang and not vim.list_contains(ts.get_installed(), lang) then
+            ts.install(lang)
+          end
+        end,
+      })
+    end,
   },
 
   -- LaTeX
