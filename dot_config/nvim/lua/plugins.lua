@@ -16,19 +16,22 @@ return require('lazy').setup({
   -- package manager
   'folke/lazy.nvim',
 
-  -- sensible defaults
-  'tpope/vim-sensible',
-  'tpope/vim-repeat',
-  'tpope/vim-surround',
+  -- surround (lua rewrite of vim-surround, with dot-repeat built in)
+  {
+    'kylechui/nvim-surround',
+    version = '^4.0.0',
+    event = 'VeryLazy',
+    config = function()
+      require('nvim-surround').setup()
+    end,
+  },
 
-  -- quotes as a textobj
-  'preservim/vim-textobj-quote',
--- git wrapper
+  -- git wrapper
   'tpope/vim-fugitive',
 
   -- language servers
   { -- automatically download lang servers
-    'williamboman/mason.nvim',
+    'mason-org/mason.nvim',
     config = function()
       require('mason').setup()
     end
@@ -38,10 +41,9 @@ return require('lazy').setup({
     'neovim/nvim-lspconfig',
     dependencies = {
       -- automatic language server installation
-      { 'williamboman/mason-lspconfig.nvim',
+      { 'mason-org/mason-lspconfig.nvim',
         dependencies = {
-          -- packer won't install dependencies of this for some reason
-          'williamboman/mason.nvim',
+          'mason-org/mason.nvim',
         },
       },
       -- autocomplete
@@ -51,18 +53,13 @@ return require('lazy').setup({
           'hrsh7th/cmp-buffer',
           'hrsh7th/cmp-path',
           'hrsh7th/cmp-cmdline',
-          'hrsh7th/vim-vsnip',
         },
         config = function()
           local cmp = require('cmp')
           cmp.setup({
             snippet = {
-              -- REQUIRED - you must specify a snippet engine
               expand = function(args)
-                vim.fn["vsnip#anonymous"](args.body) -- For `vsnip` users.
-                -- require('luasnip').lsp_expand(args.body) -- For `luasnip` users.
-                -- require('snippy').expand_snippet(args.body) -- For `snippy` users.
-                -- vim.fn["UltiSnips#Anon"](args.body) -- For `ultisnips` users.
+                vim.snippet.expand(args.body)
               end,
             },
             window = {
@@ -115,11 +112,16 @@ return require('lazy').setup({
     },
 
     config = function()
-      local capabilities = require('cmp_nvim_lsp').default_capabilities(vim.lsp.protocol.make_client_capabilities())
+      -- apply cmp capabilities to all LSP servers
+      vim.lsp.config('*', {
+        capabilities = require('cmp_nvim_lsp').default_capabilities(),
+      })
+
+      -- metals (scala) handles its own lifecycle
       do
         local config = vim.tbl_deep_extend('force',
           require('metals').bare_config(),
-          { capabilities = capabilities }
+          { capabilities = require('cmp_nvim_lsp').default_capabilities() }
         )
         local augrp = vim.api.nvim_create_augroup('cfg-lsp-metals', { clear = true })
         vim.api.nvim_create_autocmd('FileType', {
@@ -131,20 +133,11 @@ return require('lazy').setup({
           group = augrp,
         })
       end
-      require("mason-lspconfig").setup {
-        handlers = {
-          function(server_name) -- default handler
-            require('lspconfig')[server_name].setup {
-              capabilities = capabilities
-            }
-          end,
-        },
-      }
+
+      -- mason-lspconfig auto-enables installed servers via vim.lsp.enable()
+      require("mason-lspconfig").setup()
     end,
   },
-
-  -- terraform
-  'hashivim/vim-terraform',
 
   -- telescope
   {
@@ -178,20 +171,10 @@ return require('lazy').setup({
     end
   },
 
-  -- telescope wants this
+  -- treesitter (parser installation only; highlighting is built-in as of nvim 0.12)
   {
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    config = function()
-      require('nvim-treesitter').setup {
-        sync_install = false,
-        auto_install = true,
-        highlight = {
-          enable = true,
-          additional_vim_regex_highlighting = false,
-        },
-      }
-    end,
   },
 
   -- LaTeX
