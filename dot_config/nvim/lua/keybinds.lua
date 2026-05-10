@@ -1,11 +1,11 @@
--- telescope
-vim.keymap.set('n', '<leader>p', ':Telescope ')
-vim.keymap.set('n', '<leader>pp', '<cmd>Telescope find_files<cr>')
-vim.keymap.set('n', '<leader>pg', '<cmd>Telescope live_grep<cr>')
-vim.keymap.set('n', '<leader>pd', '<cmd>Telescope diagnostics<cr>')
+-- picker (snacks.nvim)
+vim.keymap.set('n', '<leader>pp', function() Snacks.picker.files() end)
+vim.keymap.set('n', '<leader>pg', function() Snacks.picker.grep() end)
+vim.keymap.set('n', '<leader>pd', function() Snacks.picker.diagnostics() end)
+vim.keymap.set('n', '<leader>pb', function() Snacks.picker.buffers() end)
 
 -- sidebar toggle
-vim.keymap.set('n', '<leader>s', function() require("nvim-tree.api").tree.toggle() end)
+vim.keymap.set('n', '<leader>s', function() Snacks.explorer() end)
 
 -- tab settings
 vim.keymap.set('n', '<leader>t', ':set et sw=0 ts=')

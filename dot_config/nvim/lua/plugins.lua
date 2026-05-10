@@ -139,22 +139,15 @@ return require('lazy').setup({
     end,
   },
 
-  -- telescope
+  -- picker / utilities
   {
-    'nvim-telescope/telescope.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' }
-  },
-
-  -- sidebar
-  {
-    'nvim-tree/nvim-tree.lua',
-    dependencies = {
-      -- 'nvim-tree/nvim-web-devicons', -- optional, for file icons
+    'folke/snacks.nvim',
+    priority = 1000,
+    lazy = false,
+    opts = {
+      picker = { enabled = true },
+      explorer = { enabled = true },
     },
-
-    config = function()
-      require("nvim-tree").setup()
-    end
   },
 
   -- colors
