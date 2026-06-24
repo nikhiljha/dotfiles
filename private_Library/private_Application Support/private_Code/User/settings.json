@@ -1,0 +1,15 @@
+{
+    "workbench.startupEditor": "none",
+    "workbench.colorTheme": "Nikhil's Theme (Dark)",
+    "editor.semanticHighlighting.enabled": true,
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": ["]", "c"],
+            "commands": ["workbench.action.compareEditor.nextChange"]
+        },
+        {
+            "before": ["[", "c"],
+            "commands": ["workbench.action.compareEditor.previousChange"]
+        }
+    ]
+}
